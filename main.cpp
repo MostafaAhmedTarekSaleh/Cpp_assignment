@@ -57,8 +57,6 @@ public:
     void ShowScore(){
         cout<< name << "' score: "<<score << endl;
     }
-}    
-
 };
 int main()
 {

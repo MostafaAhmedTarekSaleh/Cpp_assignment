@@ -1,65 +1,72 @@
 #include <iostream>
+#include <vector>
 using namespace std;
-//class flash cards
-class FlashCard{
+
+
+class FlashCard {
 public:
-   string questions;
-   string answer;
-   int difficulty;
+    string question;
+    string answer;
+    int difficulty;
 
-   FlashCard(string q, string a){
-       questions = q;
-       answer = a;
-       difficulty = 1;
-   }
+    FlashCard(string q, string a) {
+        question = q;
+        answer = a;
+        difficulty = 1; 
+    }
 
-   void FlashCard::show(){
-    cout << "Q: "<< questions << endl;
-   }
+    
+    void show() {
+        cout << "Q: " << question << endl;
+    }
 
-   bool FlashCard::checkAns(string userAns) {
-    return userAns == answer;
-   }
+    bool checkAnswer(string userAns) {
+        return userAns == answer;
+    }
 
-
-   void updateDiff(bool correct){
-    if (correct && difficulty > 1)
-       difficulty--;
-    else if (! correct && difficulty < 5)
-       difficulty++;   
-   }
+    void updateDiff(bool correct) {
+        if (correct && difficulty > 1)
+            difficulty--;
+        else if (!correct && difficulty < 5)
+            difficulty++;
+    }
 };
 
 // FlashCardDeck Class: Manage and store flash cards
-class FlashCardsDeck{
+class FlashCardsDeck {
 private:
     vector<FlashCard> cards;
 
-public://add new cards to the deck
-    void addCard(string q, string a){
+public:
+    // Add new cards to the deck and store
+    void addCard(string q, string a) {
         cards.push_back(FlashCard(q, a));
-    }    
-    
-    vector<FlashCard> &getCards(){
+    }
+
+    // Get the list of flash cards
+    vector<FlashCard>& getCards() {
         return cards;
-    }//list of flash cards
-//track user's score
-class User{
+    }
+};
+
+// User Class: Tracks the user's name and score
+class User {
 public:
     string name;
     int score;
-    
-    User(string n){
+
+    User(string n) {
         name = n;
         score = 0;
     }
 
-    void ShowScore(){
-        cout<< name << "' score: "<<score << endl;
+    // user's score
+    void showScore() {
+        cout << name << "'s score: " << score << endl;
     }
 };
-int main()
-{
-    cout << "Hello world!" << endl;
+
+int main() {
+  
     return 0;
 }

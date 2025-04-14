@@ -62,7 +62,7 @@ public:
 
     // user's score
     void showScore() {
-        cout << name << "'s score: " << score << endl;
+        cout << name << "score: " << score << endl;
     }
 };
 

@@ -2,6 +2,7 @@
 #include <vector>
 #include <algorithm>
 #include <string>
+#include <fstream>
 using namespace std;
 
 // ====================== User CLASS =========================
@@ -26,11 +27,13 @@ public:
     string question;
     string answer;
     int difficulty;
+    int correctAns; //track how many times user answered particular flashcards correct
 
     FlashCard(string q, string a) {
         question = q;
         answer = a;
         difficulty = 3;
+        correctAns = 0;
     }
 
     void show() {
@@ -42,10 +45,12 @@ public:
     }
 
     void updateDiff(bool correct) {
-        if (correct && difficulty > 1)
+        if (correct && difficulty > 1){
             difficulty--;
-        else if (!correct && difficulty < 5)
+            correctAns++;//when user answer correct, difficulty decreases
+        }else if (!correct && difficulty < 5) {
             difficulty++;
+        }    
     }
 };
 
@@ -87,7 +92,30 @@ public:
             cout << "-------------------------\n";
         }
     }
-};
+    
+    void saveCardsToFile(string filename){
+        ofstream file(filename);
+        if(file.is_open()){
+            for(const auto&card : cards){
+                file<< card.question << "|" << card.answer << "|" << card.difficulty << "|" << card.correctAns << endl;
+            }} else {
+            cout << "Unable to open file for saving." << endl;
+        }
+    }
+
+    void loadCardsFromFile(string filename) {
+        ifstream file(filename);
+        string line;
+        
+        //I'll compelete this one later 
+    cards.push_back(FlashCard(question, answer));
+            cards.back().difficulty = difficulty;
+            cards.back().correctAns = correctAns;
+        }
+        cout << "Flashcards loaded from " << filename << endl;
+    }
+ };
+
 
 // ====================== MAIN =========================
 int main() {

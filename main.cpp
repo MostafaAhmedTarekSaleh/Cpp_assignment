@@ -50,7 +50,7 @@ public:
             correctAns++;//when user answer correct, difficulty decreases
         }else if (!correct && difficulty < 5) {
             difficulty++;
-        }    
+        }
     }
 };
 
@@ -92,35 +92,52 @@ public:
             cout << "-------------------------\n";
         }
     }
-    
+
+    //please implement this under feature 4 
     void saveCardsToFile(string filename){
         ofstream file(filename);
         if(file.is_open()){
-            for(const auto&card : cards){
-                file<< card.question << "|" << card.answer << "|" << card.difficulty << "|" << card.correctAns << endl;
+            for(const FlashCard& card : cards){
+                file<< card.question << endl;
             }} else {
             cout << "Unable to open file for saving." << endl;
         }
     }
 
-    void loadCardsFromFile(string filename) {
-        ifstream file(filename);
-        string line;
-        
-        //I'll compelete this one later 
-    cards.push_back(FlashCard(question, answer));
-            cards.back().difficulty = difficulty;
-            cards.back().correctAns = correctAns;
-        }
-        cout << "Flashcards loaded from " << filename << endl;
-    }
- };
+void loadQuestionsFromFile(string filename) {
+    ifstream file(filename);
+    string line;
 
+    if (file.is_open()) {
+        while (getline(file, line)) {
+
+            size_t sep = line.find('|');
+            // ^ find the separator between question and answer, this made it easy
+            // to implement Q&A on the same file 
+
+            if (sep != string::npos) {
+                string question = line.substr(0, sep);
+                string answer = line.substr(sep + 1);
+
+                cards.push_back(FlashCard(question, answer));
+            }
+        }
+        file.close();
+        cout << "flashcards loaded from [" << filename <<"] succesfully...\n"<< endl;
+    } else {
+        cerr << "Unable to open file: " << filename << endl;
+    }
+}
+};
 
 // ====================== MAIN =========================
 int main() {
     FlashCardsDeck deck;
     string name;
+
+    deck.loadQuestionsFromFile("sourcetext.txt");
+
+
     cout << "| Welcome to the MMU digital flashcard interface |\n\n";
     cout << "Enter your name: ";
     getline(cin, name);
@@ -133,31 +150,42 @@ int main() {
         cout << "1. Add Flashcard\n";
         cout << "2. Review Flashcards\n";
         cout << "3. Show Score\n";
-        cout << "4. Exit\n\n";
+        cout << "4. Edit source (Q&A) files\n";
+        cout << "5. Exit\n\n";
         cout << "Your choice: ";
         cin >> choice;
         cin.ignore();
 
-        if (choice == 1) {
-            string q, a;
+//changed the if,else-if statements into a switch,case statement
+        switch(choice) {
+
+        case 1:
+            {string q, a;
             cout << "Enter question: ";
             getline(cin, q);
             cout << "Enter answer: ";
             getline(cin, a);
             deck.addCard(q, a);
             cout << "Flashcard added.\n";
-        } else if (choice == 2) {
-            if (deck.getCards().empty()) {
+            }break;
+
+        case 2:
+            {if (deck.getCards().empty()) {
                 cout << "No flashcards to review.\n";
             } else {
                 deck.review(user);
             }
-        } else if (choice == 3) {
-            user.showScore();
-        } else if (choice == 4) {
-            cout << "Goodbye!\n";
-            break;
-        } else {
+            }break;
+
+        case 3:
+            {user.showScore();
+            }break;
+
+        case 5:
+            {cout << "Goodbye!\n";
+            }break;
+
+        default:
             cout << "Invalid option. Please try again.\n";
         }
     }

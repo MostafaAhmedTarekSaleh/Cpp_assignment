@@ -94,40 +94,62 @@ public:
     }
 
     //please implement this under feature 4 
+//added  more lines 
     void saveCardsToFile(string filename){
         ofstream file(filename);
         if(file.is_open()){
             for(const FlashCard& card : cards){
-                file<< card.question << endl;
-            }} else {
-            cout << "Unable to open file for saving." << endl;
-        }
-    }
-
-void loadQuestionsFromFile(string filename) {
-    ifstream file(filename);
-    string line;
-
-    if (file.is_open()) {
-        while (getline(file, line)) {
-
-            size_t sep = line.find('|');
-            // ^ find the separator between question and answer, this made it easy
-            // to implement Q&A on the same file 
-
-            if (sep != string::npos) {
-                string question = line.substr(0, sep);
-                string answer = line.substr(sep + 1);
-
-                cards.push_back(FlashCard(question, answer));
+                file << card.question << "|" << card.answer << endl;  // Use 'file' instead of 'outFile'
             }
+            file.close();
+            cout << "Flashcards successfully saved to [" << filename << "]" << endl;
+        } else {
+            cerr << "Error: Unable to open file " << filename << " for saving." << endl;
         }
-        file.close();
-        cout << "flashcards loaded from [" << filename <<"] succesfully...\n"<< endl;
-    } else {
-        cerr << "Unable to open file: " << filename << endl;
     }
-}
+
+// Load flashcards from a file
+//improved this part a bit
+     void loadQuestionsFromFile(string filename) {
+        ifstream file(filename);
+        string line;
+
+        if (file.is_open()) {
+            cards.clear();  // Clear existing cards before loading new ones
+
+            int count = 0;
+            while (getline(file, line)) {
+                line.erase(0, line.find_first_not_of("\t\n\r\f\v"));
+                line.erase(line.find_last_not_of(" \t\n\r\f\v") + 1);
+
+                if (line.empty()) continue;  // Skip empty lines
+
+                size_t sep = line.find('|');  // Find separator between question and answer
+
+                if (sep != string::npos) {
+                    string question = line.substr(0, sep);
+                    string answer = line.substr(sep + 1);
+
+                    // Clean extra spaces around q&a
+                    question.erase(question.find_last_not_of(" \t") + 1);
+                    answer.erase(0, answer.find_first_not_of("\t"));
+
+                    cards.push_back(FlashCard(question, answer));
+                    count++;
+                } else {
+                    cerr << "Warning: Skipping invalid line in " << filename << ": " << line << endl;
+                }
+            }
+            file.close();
+            if (count > 0) {
+                cout << "Flashcards loaded from [" << filename << "] successfully...\n" << endl;
+            } else {
+                cout << "No valid flashcards found in [" << filename << "].\n" << endl;
+            }
+        } else {
+            cout << "Info: Could not open '" << filename << "'. Starting with an empty deck. You can add cards manually or save later." << endl;
+        }
+    }
 };
 
 // ====================== MAIN =========================

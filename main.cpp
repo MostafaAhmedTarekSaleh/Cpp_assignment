@@ -21,6 +21,31 @@ public:
     }
 };
 
+class UserList {
+    private:
+        vector<User> users;
+    
+    public:
+        // Returns a reference to a User object (existing or new)
+        User& getUser(const string& name) {
+            for (auto& user : users) {
+                if (user.name == name) {
+                    return user; // Return existing user
+                }
+            }
+    
+            // If not found, add new user
+            users.push_back(User(name));
+            return users.back(); // Return reference to the newly added user
+        }
+        void showUsers(){
+            
+            for (size_t i=0;i<users.size();i++){
+                cout<<users[i].name;
+            }
+    };
+};
+
 // ====================== FlashCard CLASS =========================
 class FlashCard {
 public:
@@ -155,15 +180,18 @@ public:
 // ====================== MAIN =========================
 int main() {
     FlashCardsDeck deck;
+    UserList user_list; 
     string name;
 
     deck.loadQuestionsFromFile("sourcetext.txt");
 
 
     cout << "| Welcome to the MMU digital flashcard interface |\n\n";
+
     cout << "Enter your name: ";
     getline(cin, name);
-    User user(name);
+
+    User& user = user_list.getUser(name);
 
     int choice;
 
@@ -173,7 +201,9 @@ int main() {
         cout << "2. Review Flashcards\n";
         cout << "3. Show Score\n";
         cout << "4. Edit source (Q&A) files\n";
-        cout << "5. Exit\n\n";
+        cout << "5. Access other users\n";
+        cout << "6. Exit\n\n";
+        
         cout << "Your choice: ";
         cin >> choice;
         cin.ignore();
@@ -203,9 +233,18 @@ int main() {
             {user.showScore();
             }break;
 
-        case 5:
-            {cout << "Goodbye!\n";
+        case 4:
+            {deck.saveCardsToFile("sourcetext.txt");
             }break;
+
+        case 5:
+        {user_list.showUsers();
+        }break;   
+
+        case 6:
+            {cout << "Goodbye!\n";
+             return 0;
+            };
 
         default:
             cout << "Invalid option. Please try again.\n";

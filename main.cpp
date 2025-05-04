@@ -39,10 +39,13 @@ class UserList {
             return users.back(); // Return reference to the newly added user
         }
         void showUsers(){
-            
+            cout << "\nList of users:"<<endl;
+
             for (size_t i=0;i<users.size();i++){
-                cout<<users[i].name;
+               
+                cout << i+1 << ") " << users[i].name << "| SCORE: " << users[i].score << endl;
             }
+        
     };
 };
 
@@ -238,8 +241,27 @@ int main() {
             }break;
 
         case 5:
-        {user_list.showUsers();
-        }break;   
+            {user_list.showUsers();
+                char add;
+
+                while (true) {
+                    cout << "\nPress '+' to add new user: ";
+                    cin >> add;
+            
+                    if (add == '+') {
+                        string username;
+                        cout << "Enter the username: ";
+                        getline(cin, username);
+                       user_list.getUser(username);
+                       user_list.showUsers();
+                    } else {
+                        break;
+                    }
+                }
+            
+                
+
+            }break;   
 
         case 6:
             {cout << "Goodbye!\n";

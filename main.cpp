@@ -9,14 +9,20 @@ using namespace std;
 class User {
 public:
     string name;
+    string password;
     int score;
 
-    User(string n) {
+    User(string n, string p) {
         name = n;
+        password = p;
         score = 0;
     }
 
-    void showScore() {
+    bool checkPassword(const string& p) const {
+        return p == password;
+    }
+
+    void showScore() const {
         cout << name << "'s score: " << score << endl;
     }
 };
@@ -25,19 +31,34 @@ class UserList {
     private:
         vector<User> users;
     
-    public:
-        // Returns a reference to a User object (existing or new)
-        User& getUser(const string& name) {
-            for (auto& user : users) {
+   public:
+        // Check if user exists
+       //replaced with bool expression 
+        bool userExists(const string& name) {
+            for (const auto& user : users) {
                 if (user.name == name) {
-                    return user; // Return existing user
+                    return true;
                 }
             }
-    
-            // If not found, add new user
-            users.push_back(User(name));
-            return users.back(); // Return reference to the newly added user
+            return false;
         }
+        
+        // Authenticate existing user
+        User* authenticateUser(const string& name, const string& password) {
+            for (auto& user : users) {
+                if (user.name == name && user.checkPassword(password)) {
+                    return &user;
+                }
+            }
+            return nullptr;
+        }
+        
+        // Create new user with password
+        User& createUser(const string& name, const string& password) {
+            users.push_back(User(name, password));
+            return users.back();
+        }
+        
         void showUsers(){
             cout << "\nList of users:"<<endl;
 
@@ -46,16 +67,15 @@ class UserList {
                 cout << i+1 << ") " << users[i].name << "| SCORE: " << users[i].score << endl;
             }
         
-    };
+        }
 };
-
 // ====================== FlashCard CLASS =========================
 class FlashCard {
 public:
     string question;
     string answer;
     int difficulty;
-    int correctAns; //track how many times user answered particular flashcards correct
+    int correctAns; //track how many times the user answered particular flashcards correctly
 
     FlashCard(string q, string a) {
         question = q;
@@ -75,7 +95,7 @@ public:
     void updateDiff(bool correct) {
         if (correct && difficulty > 1){
             difficulty--;
-            correctAns++;//when user answer correct, difficulty decreases
+            correctAns++;//when user answers correctly, the difficulty decreases
         }else if (!correct && difficulty < 5) {
             difficulty++;
         }
@@ -180,21 +200,53 @@ public:
     }
 };
 
+// ====================== AUTHENTICATION FUNCTIONS =========================
+User* loginUser(UserList& user_list) {
+    string name, password;
+    
+    cout << "Enter your name: ";
+    getline(cin, name);
+    
+    if (user_list.userExists(name)) {
+        // Existing user - ask for password
+        cout << "What is your password? ";
+        getline(cin, password);
+        
+        User* user = user_list.authenticateUser(name, password);
+        if (user != nullptr) {
+            cout << "Logged in successfully!" << endl;
+            return user;
+        } else {
+            cout << "Incorrect password!" << endl;
+            return nullptr;
+        }
+    } else {
+        // New user - set password
+        cout << "New user detected. Set your password: ";
+        getline(cin, password);
+        cout << "Account created successfully!" << endl;
+        return &user_list.createUser(name, password);
+    }
+  }
+
 // ====================== MAIN =========================
 int main() {
     FlashCardsDeck deck;
     UserList user_list; 
-    string name;
 
     deck.loadQuestionsFromFile("sourcetext.txt");
 
 
     cout << "| Welcome to the MMU digital flashcard interface |\n\n";
-
-    cout << "Enter your name: ";
-    getline(cin, name);
-
-    User& user = user_list.getUser(name);
+    User* currentUser = nullptr;
+    
+    // Login/Registration loop
+    while (currentUser == nullptr) {
+        currentUser = loginUser(user_list);
+        if (currentUser == nullptr) {
+            cout << "Login failed. Please try again.\n\n";
+        }
+    }
 
     int choice;
 
@@ -225,43 +277,47 @@ int main() {
             }break;
 
         case 2:
-            {if (deck.getCards().empty()) {
+            { if (deck.getCards().empty()) {
                 cout << "No flashcards to review.\n";
             } else {
-                deck.review(user);
+                deck.review(*currentUser);
             }
-            }break;
+            break;
+        }
 
-        case 3:
-            {user.showScore();
-            }break;
+         case 3:{
+            currentUser->showScore();
+            break;
+        }
+
 
         case 4:
             {deck.saveCardsToFile("sourcetext.txt");
             }break;
 
-        case 5:
-            {user_list.showUsers();
-                char add;
-
-                while (true) {
-                    cout << "\nPress '+' to add new user: ";
-                    cin >> add;
-            
-                    if (add == '+') {
-                        string username;
-                        cout << "Enter the username: ";
-                        getline(cin, username);
-                       user_list.getUser(username);
-                       user_list.showUsers();
-                    } else {
-                        break;
-                    }
+       case 5: {
+            user_list.showUsers();
+            char add;
+            while (true) {
+                cout << "\nPress '+' to add new user: ";
+                cin >> add;
+                cin.ignore();
+                if (add == '+') {
+                    string username, userpassword;
+                    cout << "Enter the username: ";
+                    getline(cin, username);
+                    cout << "Set password for " << username << ": ";
+                    getline(cin, userpassword);
+                    user_list.createUser(username, userpassword);
+                    cout << "User created successfully!" << endl;
+                    user_list.showUsers();
+                } else {
+                    cout << "Returning to main menu..." << endl;
+                    break;
                 }
-            
-                
-
-            }break;   
+            }
+            break;
+        }
 
         case 6:
             {cout << "Goodbye!\n";

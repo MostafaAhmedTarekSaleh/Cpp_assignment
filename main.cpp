@@ -308,7 +308,8 @@ int main() {
                     getline(cin, username);
                     cout << "Set password for " << username << ": ";
                     getline(cin, userpassword);
-                    user_list.createUser(username, userpassword);
+                    User temp = user_list.createUser(username, userpassword);//missing part was here
+                    currentUser = new User(temp);
                     cout << "User created successfully!" << endl;
                     user_list.showUsers();
                 } else {

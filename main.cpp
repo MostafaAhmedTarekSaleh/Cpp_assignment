@@ -31,9 +31,7 @@ class UserList {
     private:
         vector<User> users;
     
-   public:
-        // Check if user exists
-       //replaced with bool expression 
+    public:
         bool userExists(const string& name) {
             for (const auto& user : users) {
                 if (user.name == name) {
@@ -43,7 +41,6 @@ class UserList {
             return false;
         }
         
-        // Authenticate existing user
         User* authenticateUser(const string& name, const string& password) {
             for (auto& user : users) {
                 if (user.name == name && user.checkPassword(password)) {
@@ -52,8 +49,6 @@ class UserList {
             }
             return nullptr;
         }
-        
-        // Create new user with password
         User& createUser(const string& name, const string& password) {
             users.push_back(User(name, password));
             return users.back();
@@ -61,21 +56,19 @@ class UserList {
         
         void showUsers(){
             cout << "\nList of users:"<<endl;
-
             for (size_t i=0;i<users.size();i++){
-               
                 cout << i+1 << ") " << users[i].name << "| SCORE: " << users[i].score << endl;
             }
-        
         }
 };
+
 // ====================== FlashCard CLASS =========================
 class FlashCard {
 public:
     string question;
     string answer;
     int difficulty;
-    int correctAns; //track how many times the user answered particular flashcards correctly
+    int correctAns;
 
     FlashCard(string q, string a) {
         question = q;
@@ -95,7 +88,7 @@ public:
     void updateDiff(bool correct) {
         if (correct && difficulty > 1){
             difficulty--;
-            correctAns++;//when user answers correctly, the difficulty decreases
+            correctAns++;
         }else if (!correct && difficulty < 5) {
             difficulty++;
         }
@@ -110,6 +103,7 @@ private:
 public:
     void addCard(string q, string a) {
         cards.push_back(FlashCard(q, a));
+        cout << "Card added successfully! Total cards: " << cards.size() << endl;
     }
 
     vector<FlashCard>& getCards() {
@@ -141,61 +135,83 @@ public:
         }
     }
 
-    //please implement this under feature 4 
-//added  more lines 
+    // FIXED: Better error handling and debugging
     void saveCardsToFile(string filename){
+        cout << "Attempting to save " << cards.size() << " cards to file: " << filename << endl;
+        
+        if (cards.empty()) {
+            cout << "Warning: No cards to save!" << endl;
+            return;
+        }
+        
         ofstream file(filename);
         if(file.is_open()){
+            int savedCount = 0;
             for(const FlashCard& card : cards){
-                file << card.question << "|" << card.answer << endl;  // Use 'file' instead of 'outFile'
+                file << card.question << "|" << card.answer << endl;
+                savedCount++;
             }
             file.close();
-            cout << "Flashcards successfully saved to [" << filename << "]" << endl;
+            cout << "Successfully saved " << savedCount << " flashcards to [" << filename << "]" << endl;
         } else {
             cerr << "Error: Unable to open file " << filename << " for saving." << endl;
+            cerr << "Make sure you have write permissions in the current directory." << endl;
         }
     }
 
-// Load flashcards from a file
-//improved this part a bit
-     void loadQuestionsFromFile(string filename) {
+    // Better error handling
+    void loadQuestionsFromFile(string filename) {
         ifstream file(filename);
         string line;
 
         if (file.is_open()) {
-            cards.clear();  // Clear existing cards before loading new ones
-
+            cards.clear();
             int count = 0;
+            
             while (getline(file, line)) {
-                line.erase(0, line.find_first_not_of("\t\n\r\f\v"));
+                // Remove leading and trailing whitespace
+                line.erase(0, line.find_first_not_of(" \t\n\r\f\v"));
                 line.erase(line.find_last_not_of(" \t\n\r\f\v") + 1);
 
-                if (line.empty()) continue;  // Skip empty lines
+                if (line.empty()) continue;
 
-                size_t sep = line.find('|');  // Find separator between question and answer
-
+                size_t sep = line.find('|');
                 if (sep != string::npos) {
                     string question = line.substr(0, sep);
                     string answer = line.substr(sep + 1);
 
-                    // Clean extra spaces around q&a
+                    // Clean extra spaces
                     question.erase(question.find_last_not_of(" \t") + 1);
-                    answer.erase(0, answer.find_first_not_of("\t"));
+                    answer.erase(0, answer.find_first_not_of(" \t"));
 
                     cards.push_back(FlashCard(question, answer));
                     count++;
                 } else {
-                    cerr << "Warning: Skipping invalid line in " << filename << ": " << line << endl;
+                    cerr << "Warning: Skipping invalid line: " << line << endl;
                 }
             }
             file.close();
+            
             if (count > 0) {
-                cout << "Flashcards loaded from [" << filename << "] successfully...\n" << endl;
+                cout << "Loaded " << count << " flashcards from [" << filename << "] successfully.\n" << endl;
             } else {
                 cout << "No valid flashcards found in [" << filename << "].\n" << endl;
             }
         } else {
-            cout << "Info: Could not open '" << filename << "'. Starting with an empty deck. You can add cards manually or save later." << endl;
+            cout << "Info: Could not open '" << filename << "'. Starting with an empty deck." << endl;
+        }
+    }
+    
+    // Function to display all cards for debugging
+    void showAllCards() {
+        if (cards.empty()) {
+            cout << "No cards in deck." << endl;
+            return;
+        }
+        
+        cout << "Current flashcards in deck (" << cards.size() << " total):" << endl;
+        for (size_t i = 0; i < cards.size(); i++) {
+            cout << i + 1 << ". Q: " << cards[i].question << " | A: " << cards[i].answer << endl;
         }
     }
 };
@@ -208,7 +224,6 @@ User* loginUser(UserList& user_list) {
     getline(cin, name);
     
     if (user_list.userExists(name)) {
-        // Existing user - ask for password
         cout << "What is your password? ";
         getline(cin, password);
         
@@ -221,13 +236,12 @@ User* loginUser(UserList& user_list) {
             return nullptr;
         }
     } else {
-        // New user - set password
         cout << "New user detected. Set your password: ";
         getline(cin, password);
         cout << "Account created successfully!" << endl;
         return &user_list.createUser(name, password);
     }
-  }
+}
 
 // ====================== MAIN =========================
 int main() {
@@ -236,11 +250,9 @@ int main() {
 
     deck.loadQuestionsFromFile("sourcetext.txt");
 
-
     cout << "| Welcome to the MMU digital flashcard interface |\n\n";
     User* currentUser = nullptr;
     
-    // Login/Registration loop
     while (currentUser == nullptr) {
         currentUser = loginUser(user_list);
         if (currentUser == nullptr) {
@@ -255,78 +267,82 @@ int main() {
         cout << "1. Add Flashcard\n";
         cout << "2. Review Flashcards\n";
         cout << "3. Show Score\n";
-        cout << "4. Edit source (Q&A) files\n";
+        cout << "4. Save flashcards to file\n";
         cout << "5. Access other users\n";
-        cout << "6. Exit\n\n";
+        cout << "6. Show all cards\n";  // NEW: Debug option
+        cout << "7. Exit\n\n";
         
         cout << "Your choice: ";
         cin >> choice;
         cin.ignore();
 
-//changed the if,else-if statements into a switch,case statement
         switch(choice) {
-
-        case 1:
-            {string q, a;
-            cout << "Enter question: ";
-            getline(cin, q);
-            cout << "Enter answer: ";
-            getline(cin, a);
-            deck.addCard(q, a);
-            cout << "Flashcard added.\n";
-            }break;
-
-        case 2:
-            { if (deck.getCards().empty()) {
-                cout << "No flashcards to review.\n";
-            } else {
-                deck.review(*currentUser);
+            case 1: {
+                string q, a;
+                cout << "Enter question: ";
+                getline(cin, q);
+                cout << "Enter answer: ";
+                getline(cin, a);
+                deck.addCard(q, a);
+                break;
             }
-            break;
-        }
 
-         case 3:{
-            currentUser->showScore();
-            break;
-        }
-
-
-        case 4:
-            {deck.saveCardsToFile("sourcetext.txt");
-            }break;
-
-       case 5: {
-            user_list.showUsers();
-            char add;
-            while (true) {
-                cout << "\nPress '+' to add new user: ";
-                cin >> add;
-                cin.ignore();
-                if (add == '+') {
-                    string username, userpassword;
-                    cout << "Enter the username: ";
-                    getline(cin, username);
-                    cout << "Set password for " << username << ": ";
-                    getline(cin, userpassword);
-                    User temp = user_list.createUser(username, userpassword);//missing part was here
-                    currentUser = new User(temp);
-                    cout << "User created successfully!" << endl;
-                    user_list.showUsers();
+            case 2: {
+                if (deck.getCards().empty()) {
+                    cout << "No flashcards to review.\n";
                 } else {
-                    cout << "Returning to main menu..." << endl;
-                    break;
+                    deck.review(*currentUser);
                 }
+                break;
             }
-            break;
-        }
 
-        case 6:
-            {cout << "Goodbye!\n";
-             return 0;
-            };
+            case 3: {
+                currentUser->showScore();
+                break;
+            }
 
-        default:
-            cout << "Invalid option. Please try again.\n";
+            case 4: {
+                deck.saveCardsToFile("sourcetext.txt");
+                break;
+            }
+
+            case 5: {
+                user_list.showUsers();
+                char add;
+                while (true) {
+                    cout << "\nPress '+' to add new user (or any other key to return): ";
+                    cin >> add;
+                    cin.ignore();
+                    if (add == '+') {
+                        string username, userpassword;
+                        cout << "Enter the username: ";
+                        getline(cin, username);
+                        cout << "Set password for " << username << ": ";
+                        getline(cin, userpassword);
+                        User& temp = user_list.createUser(username, userpassword);
+                        currentUser = &temp;
+                        cout << "User created successfully!" << endl;
+                        user_list.showUsers();
+                    } else {
+                        cout << "Returning to main menu..." << endl;
+                        break;
+                    }
+                }
+                break;
+            }
+
+            case 6: {  // NEW: Debug option
+                deck.showAllCards();
+                break;
+            }
+
+            case 7: {
+                cout << "Goodbye!\n";
+                return 0;
+            }
+
+            default:
+                cout << "Invalid option. Please try again.\n";
         }
     }
 

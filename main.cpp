@@ -242,94 +242,100 @@ User* loginUser(UserList& user_list) {
         return &user_list.createUser(name, password);
     }
 }
-// ====================== CLASS MENU FUNCTION =========================
-void classMenu(FlashCardsDeck& deck, UserList& user_list, User* currentUser) {
-    int choice;
 
-    while (true) {
-        cout << "\nMenu:\n";
-        cout << "1. Add Flashcard\n";
-        cout << "2. Review Flashcards\n";
-        cout << "3. Show Score\n";
-        cout << "4. Save flashcards to file\n";
-        cout << "5. Access other users\n";
-        cout << "6. Show all cards\n";
-        cout << "7. Exit\n\n";
-        
-        cout << "Your choice: ";
-        cin >> choice;
-        cin.ignore();
 
-        switch(choice) {
-            case 1: {
-                string q, a;
-                cout << "Enter question: ";
-                getline(cin, q);
-                cout << "Enter answer: ";
-                getline(cin, a);
-                deck.addCard(q, a);
-                break;
-            }
+class Menu{
 
-            case 2: {
-                if (deck.getCards().empty()) {
-                    cout << "No flashcards to review.\n";
-                } else {
-                    deck.review(*currentUser);
+public:
+
+    void run(FlashCardsDeck& deck, UserList& user_list, User* currentUser) {
+        int choice;
+
+        while (true) {
+            cout << "\nMenu:\n";
+            cout << "1. Add Flashcard\n";
+            cout << "2. Review Flashcards\n";
+            cout << "3. Show Score\n";
+            cout << "4. Save flashcards to file\n";
+            cout << "5. Access other users\n";
+            cout << "6. Show all cards\n";
+            cout << "7. Exit\n\n";
+            
+            cout << "Your choice: ";
+            cin >> choice;
+            cin.ignore();
+
+            switch(choice) {
+                case 1: {
+                    string q, a;
+                    cout << "Enter question: ";
+                    getline(cin, q);
+                    cout << "Enter answer: ";
+                    getline(cin, a);
+                    deck.addCard(q, a);
+                    break;
                 }
-                break;
-            }
 
-            case 3: {
-                currentUser->showScore();
-                break;
-            }
-
-            case 4: {
-                deck.saveCardsToFile("sourcetext.txt");
-                break;
-            }
-
-            case 5: {
-                user_list.showUsers();
-                char add;
-                while (true) {
-                    cout << "\nPress '+' to add new user (or any other key to return): ";
-                    cin >> add;
-                    cin.ignore();
-                    if (add == '+') {
-                        string username, userpassword;
-                        cout << "Enter the username: ";
-                        getline(cin, username);
-                        cout << "Set password for " << username << ": ";
-                        getline(cin, userpassword);
-                        User& temp = user_list.createUser(username, userpassword);
-                        currentUser = &temp;
-                        cout << "User created successfully!" << endl;
-                        user_list.showUsers();
+                case 2: {
+                    if (deck.getCards().empty()) {
+                        cout << "No flashcards to review.\n";
                     } else {
-                        cout << "Returning to main menu..." << endl;
-                        break;
+                        deck.review(*currentUser);
                     }
+                    break;
                 }
-                break;
-            }
 
-            case 6: {
-                deck.showAllCards();
-                break;
-            }
+                case 3: {
+                    currentUser->showScore();
+                    break;
+                }
 
-            case 7: {
-                cout << "Goodbye!\n";
-                return;
-            }
+                case 4: {
+                    deck.saveCardsToFile("sourcetext.txt");
+                    break;
+                }
 
-            default:
-                cout << "Invalid option. Please try again.\n";
+                case 5: {
+                    user_list.showUsers();
+                    char add;
+                    while (true) {
+                        cout << "\nPress '+' to add new user (or any other key to return): ";
+                        cin >> add;
+                        cin.ignore();
+                        if (add == '+') {
+                            string username, userpassword;
+                            cout << "Enter the username: ";
+                            getline(cin, username);
+                            cout << "Set password for " << username << ": ";
+                            getline(cin, userpassword);
+                            User& temp = user_list.createUser(username, userpassword);
+                            currentUser = &temp;
+                            cout << "User created successfully!" << endl;
+                            user_list.showUsers();
+                        } else {
+                            cout << "Returning to main menu..." << endl;
+                            break;
+                        }
+                    }
+                    break;
+                }
+
+                case 6: {
+                    deck.showAllCards();
+                    break;
+                }
+
+                case 7: {
+                    cout << "Goodbye!\n";
+                    return;
+                }
+
+                default:
+                    cout << "Invalid option. Please try again.\n";
+            }
         }
     }
-}
+};
 
 // ====================== MAIN =========================
 int main() {
@@ -350,6 +356,7 @@ int main() {
 
 
 //call the class menu function to handle all options in a menu
-    classMenu(deck, user_list, currentUser);
+    Menu app;
+    app.run(deck, user_list, currentUser);
     return 0;
 }

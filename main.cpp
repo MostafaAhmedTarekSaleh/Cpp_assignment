@@ -242,24 +242,8 @@ User* loginUser(UserList& user_list) {
         return &user_list.createUser(name, password);
     }
 }
-
-// ====================== MAIN =========================
-int main() {
-    FlashCardsDeck deck;
-    UserList user_list; 
-
-    deck.loadQuestionsFromFile("sourcetext.txt");
-
-    cout << "| Welcome to the MMU digital flashcard interface |\n\n";
-    User* currentUser = nullptr;
-    
-    while (currentUser == nullptr) {
-        currentUser = loginUser(user_list);
-        if (currentUser == nullptr) {
-            cout << "Login failed. Please try again.\n\n";
-        }
-    }
-
+// ====================== CLASS MENU FUNCTION =========================
+void classMenu(FlashCardsDeck& deck, UserList& user_list, User* currentUser) {
     int choice;
 
     while (true) {
@@ -269,7 +253,7 @@ int main() {
         cout << "3. Show Score\n";
         cout << "4. Save flashcards to file\n";
         cout << "5. Access other users\n";
-        cout << "6. Show all cards\n";  // NEW: Debug option
+        cout << "6. Show all cards\n";
         cout << "7. Exit\n\n";
         
         cout << "Your choice: ";
@@ -331,20 +315,41 @@ int main() {
                 break;
             }
 
-            case 6: {  // NEW: Debug option
+            case 6: {
                 deck.showAllCards();
                 break;
             }
 
             case 7: {
                 cout << "Goodbye!\n";
-                return 0;
+                return;
             }
 
             default:
                 cout << "Invalid option. Please try again.\n";
         }
     }
+}
 
+// ====================== MAIN =========================
+int main() {
+    FlashCardsDeck deck;
+    UserList user_list; 
+
+    deck.loadQuestionsFromFile("sourcetext.txt");
+
+    cout << "| Welcome to the MMU digital flashcard interface |\n\n";
+    User* currentUser = nullptr;
+    
+    while (currentUser == nullptr) {
+        currentUser = loginUser(user_list);
+        if (currentUser == nullptr) {
+            cout << "Login failed. Please try again.\n\n";
+        }
+    }
+
+
+//call the class menu function to handle all options in a menu
+    classMenu(deck, user_list, currentUser);
     return 0;
 }

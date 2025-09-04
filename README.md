@@ -24,9 +24,9 @@ It is designed for students who want to practice Q&A style revision in an intera
 
 - **Menu System**
   - Add Flashcard.
-  -Review Flashcards.
-  -Show Score.
-  -Save flashcards to file.
-  -Access other users.
-  -Show all cards.
-  -Exit.
+  - Review Flashcards.
+  - Show Score.
+  - Save flashcards to file.
+  - Access other users.
+  - Show all cards.
+  - Exit.

@@ -23,3 +23,10 @@ It is designed for students who want to practice Q&A style revision in an intera
   - On startup, the program loads existing flashcards automatically.
 
 - **Menu System**
+  - Add Flashcard
+  -Review Flashcards
+  -Show Score
+  -Save flashcards to file
+  -Access other users
+  -Show all cards
+  -Exit
